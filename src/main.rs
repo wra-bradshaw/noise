@@ -4,7 +4,7 @@ mod filter;
 mod noise;
 mod slider;
 mod ui;
-use std::{env, io::{self, Read}};
+use std::env;
 
 use app::App;
 use constants::{MAXIMUM_DB, MINIMUM_DB};
@@ -82,15 +82,13 @@ fn main() -> anyhow::Result<()> {
     let noise = NoiseMaker::new(&device)?;
 
     // pre run
-    let args = env::args().find(|f| f == "-i");
-    let f: [f32; FREQUENCIES.len()] = match args {
-        Some(_) => {
-            let mut buffer: Vec<u8> = vec![];
-            io::stdin().read_to_end(&mut buffer)?;
-            let str = std::str::from_utf8(&buffer)?;
-            serde_json::from_str::<[f32; FREQUENCIES.len()]>(str)?
-        },
-        None => [0.0; FREQUENCIES.len()],
+    let args: Vec<_> = env::args().skip(1).collect();
+    let f: [f32; FREQUENCIES.len()] = match args.as_slice() {
+        [] => [0.0; FREQUENCIES.len()],
+        [flag, preset] if flag == "-p" || flag == "--preset" => {
+            serde_json::from_str::<[f32; FREQUENCIES.len()]>(preset)?
+        }
+        _ => anyhow::bail!("usage: noise [-p|--preset <JSON>]"),
     };
 
     enable_raw_mode()?;
