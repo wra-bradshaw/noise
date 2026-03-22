@@ -1,12 +1,15 @@
 use std::sync::{Arc, Mutex};
 
-use cpal::{traits::{DeviceTrait, StreamTrait}, SampleFormat};
+use cpal::{
+    traits::{DeviceTrait, StreamTrait},
+    SampleFormat,
+};
 use rand::Rng;
 
 use crate::constants::{FREQUENCIES, Q_FACTOR};
-use crate::{constants, filter::biquad::StreamBiquadFilter};
 use crate::filter::coefs::Coefficients;
 use crate::filter::filter::StreamFilter;
+use crate::{constants, filter::biquad::StreamBiquadFilter};
 
 pub struct NoiseMaker {
     filters: [Arc<Mutex<StreamBiquadFilter>>; FREQUENCIES.len()],
@@ -33,21 +36,66 @@ impl NoiseMaker {
         let sample_rate = config.sample_rate().0 as f32;
 
         let filters: [Arc<Mutex<StreamBiquadFilter>>; 15] = [
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[0], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[1], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[2], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[3], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[4], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[5], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[6], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[7], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[8], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[9], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[10], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[11], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[12], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[13], 0.0, Q_FACTOR)))),
-            Arc::new(Mutex::new(StreamBiquadFilter::new(channels, &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[14], 0.0, Q_FACTOR)))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[0], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[1], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[2], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[3], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[4], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[5], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[6], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[7], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[8], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[9], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[10], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[11], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[12], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[13], 0.0, Q_FACTOR),
+            ))),
+            Arc::new(Mutex::new(StreamBiquadFilter::new(
+                channels,
+                &Coefficients::new_peaking_eq(sample_rate, FREQUENCIES[14], 0.0, Q_FACTOR),
+            ))),
         ];
 
         let sample_format = config.sample_format();
@@ -68,11 +116,17 @@ impl NoiseMaker {
         }?;
 
         return Ok(Self {
-            stream, filters, config: stream_config
+            stream,
+            filters,
+            config: stream_config,
         });
     }
 
-    fn build_stream<T>(config: &cpal::StreamConfig, device: &cpal::Device, filters: &[Arc<Mutex<StreamBiquadFilter>>; constants::FREQUENCIES.len()]) -> anyhow::Result<cpal::Stream>
+    fn build_stream<T>(
+        config: &cpal::StreamConfig,
+        device: &cpal::Device,
+        filters: &[Arc<Mutex<StreamBiquadFilter>>; constants::FREQUENCIES.len()],
+    ) -> anyhow::Result<cpal::Stream>
     where
         T: cpal::SizedSample + cpal::FromSample<f32> + 'static,
         rand::distributions::Standard: rand::distributions::Distribution<T>,
@@ -87,7 +141,6 @@ impl NoiseMaker {
                 filters_stream.iter().for_each(|f| {
                     f.lock().unwrap().process(data);
                 })
-                
             },
             move |err| println!("{:?}", err),
             None,
@@ -95,7 +148,15 @@ impl NoiseMaker {
     }
 
     pub fn set_filter_gain(&self, i: usize, db: f32) {
-        return self.filters[i].lock().unwrap().set_coefs(Coefficients::new_peaking_eq(self.config.sample_rate.0 as f32, FREQUENCIES[i], db, Q_FACTOR));
+        return self.filters[i]
+            .lock()
+            .unwrap()
+            .set_coefs(Coefficients::new_peaking_eq(
+                self.config.sample_rate.0 as f32,
+                FREQUENCIES[i],
+                db,
+                Q_FACTOR,
+            ));
     }
 
     pub fn play(&self) -> anyhow::Result<()> {

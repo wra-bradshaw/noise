@@ -6,7 +6,11 @@ use ratatui::{
     Frame,
 };
 
-use crate::{app::App, constants::{self, FREQUENCIES, Q_FACTOR}, slider::Slider};
+use crate::{
+    app::App,
+    constants::{self, FREQUENCIES, Q_FACTOR},
+    slider::Slider,
+};
 
 pub fn ui(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
@@ -24,11 +28,7 @@ pub fn ui(f: &mut Frame, app: &App) {
         .padding(Padding::horizontal(1))
         .style(Style::default());
 
-    let title = Paragraph::new(Text::styled(
-        "Rust Noise TUI",
-        Style::default(),
-    ))
-    .block(title_block);
+    let title = Paragraph::new(Text::styled("Rust Noise TUI", Style::default())).block(title_block);
 
     f.render_widget(title, chunks[0]);
 
@@ -39,7 +39,10 @@ pub fn ui(f: &mut Frame, app: &App) {
         .style(Style::default());
 
     let status = Paragraph::new(Text::styled(
-        format!("{}Hz \t {}dB gain \t {} Q factor", FREQUENCIES[app.currently_changing], app.vals[app.currently_changing], Q_FACTOR),
+        format!(
+            "{}Hz \t {}dB gain \t {} Q factor",
+            FREQUENCIES[app.currently_changing], app.vals[app.currently_changing], Q_FACTOR
+        ),
         Style::default(),
     ))
     .block(status_block);
@@ -47,7 +50,7 @@ pub fn ui(f: &mut Frame, app: &App) {
 
     let slider_chunks = Layout::default()
         .direction(ratatui::layout::Direction::Horizontal)
-        .constraints([Constraint::Fill(1);constants::FREQUENCIES.len()])
+        .constraints([Constraint::Fill(1); constants::FREQUENCIES.len()])
         .split(chunks[1]);
 
     for i in 0..constants::FREQUENCIES.len() {
@@ -60,9 +63,9 @@ pub fn ui(f: &mut Frame, app: &App) {
             })
             .style(Style::default());
 
-        let slider = Slider::new(app.vals[i], constants::MINIMUM_DB, constants::MAXIMUM_DB).block(slider_block);
-    
+        let slider = Slider::new(app.vals[i], constants::MINIMUM_DB, constants::MAXIMUM_DB)
+            .block(slider_block);
+
         f.render_widget(slider, slider_chunks[i]);
     }
-
 }

@@ -59,8 +59,15 @@ impl<'a> Slider<'a> {
             .style(Style::default().bg(Color::Indexed(8)))
             .render(bottom_region, buf);
 
-        let handle_region = Rect::new(x_midpoint - 1, (y_midpoint as f32 - filled - 1.0) as u16, 3, 2);
-        Block::bordered().style(Style::default().fg(Color::Indexed(1)).bg(Color::Indexed(8))).render(handle_region, buf);
+        let handle_region = Rect::new(
+            x_midpoint - 1,
+            (y_midpoint as f32 - filled - 1.0) as u16,
+            3,
+            2,
+        );
+        Block::bordered()
+            .style(Style::default().fg(Color::Indexed(1)).bg(Color::Indexed(8)))
+            .render(handle_region, buf);
     }
 }
 
