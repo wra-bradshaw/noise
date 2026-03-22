@@ -3,6 +3,8 @@
 `noise` is a terminal UI for shaping generated white noise with a 15-band equalizer.
 It opens your default audio output device, plays noise continuously, and lets you adjust each EQ band from the keyboard.
 
+![Screenshot of the noise terminal UI](./screenshot.png)
+
 ## Features
 
 - 15 fixed EQ bands: `25`, `40`, `63`, `100`, `160`, `250`, `400`, `630`, `1000`, `1600`, `2500`, `4000`, `6300`, `10000`, and `16000` Hz
