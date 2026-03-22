@@ -1,37 +1,94 @@
 {
-	description = "noise TUI";
+  description = "noise TUI";
 
-	inputs = {
-		nixpkgs.url = "github:NixOS/nixpkgs";
-		flake-utils.url = "github:numtide/flake-utils";
-	};
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    fenix = {
+      url = "github:nix-community/fenix/monthly";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
-	outputs = { self, nixpkgs, flake-utils, }:
-		flake-utils.lib.eachDefaultSystem (system: 
-			let 
-				overlays = [];
-				lib = nixpkgs.lib;
-				pkgs = import nixpkgs { inherit system overlays; };
-				manifest = (lib.importTOML ./Cargo.toml).package;
-				rustBuild = (pkgs.rustPlatform.buildRustPackage) {
-					pname = manifest.name;
-					version = manifest.version;
-					nativeBuildInputs = with pkgs; [ pkg-config ];
-					buildInputs = with pkgs; [ alsa-lib ];
-					cargoLock.lockFile = ./Cargo.lock;
-					src = ./.;
-				};
-			in
-				{
-					packages = {
-						rust = rustBuild;
-					};
-					defaultPackage = rustBuild;
-					devShell = pkgs.mkShell {
-						packages = [ pkgs.cava pkgs.cargo pkgs.rustc pkgs.rustfmt pkgs.pkg-config pkgs.alsa-lib pkgs.evcxr rustBuild ];
-						shellHook = ''
-						'';
-					};
-				}
-		);
+  outputs =
+    {
+      self,
+      nixpkgs,
+      fenix,
+      ...
+    }:
+    let
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
+
+      forEachSupportedSystem =
+        f:
+        nixpkgs.lib.genAttrs supportedSystems (
+          system:
+          f {
+            inherit system;
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ fenix.overlays.default ];
+            };
+          }
+        );
+    in
+    {
+      packages = forEachSupportedSystem (
+        { pkgs, ... }:
+        let
+          manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
+        in
+        {
+          default = pkgs.rustPlatform.buildRustPackage {
+            pname = manifest.name;
+            version = manifest.version;
+            src = ./.;
+            cargoLock.lockFile = ./Cargo.lock;
+            nativeBuildInputs = with pkgs; [ pkg-config ];
+            buildInputs =
+              with pkgs;
+              [ ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ alsa-lib ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ libiconv ];
+          };
+        }
+      );
+
+      devShells = forEachSupportedSystem (
+        { pkgs, system }:
+        let
+          toolchain = pkgs.fenix.combine [
+            (pkgs.fenix.complete.withComponents [
+              "cargo"
+              "clippy"
+              "rust-src"
+              "rustc"
+              "rustfmt"
+            ])
+          ];
+        in
+        {
+          default = pkgs.mkShell {
+            nativeBuildInputs =
+              with pkgs;
+              [
+                self.formatter.${system}
+                toolchain
+                cargo-expand
+                evcxr
+                pkg-config
+                python3
+              ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ alsa-lib ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ libiconv ];
+          };
+        }
+      );
+
+      formatter = forEachSupportedSystem ({ pkgs, ... }: pkgs.nixfmt-rfc-style);
+    };
 }
