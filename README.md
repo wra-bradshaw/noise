@@ -11,14 +11,6 @@ It opens your default audio output device, plays noise continuously, and lets yo
 - Prints the final EQ curve as JSON when you exit
 - Can start from a JSON preset passed on the command line
 
-## Requirements
-
-- Rust toolchain for `cargo build` / `cargo run`
-- A working default output audio device
-- On Linux, the app depends on ALSA through `cpal`
-
-If you use Nix, this repo also includes a `flake.nix` with a dev shell and build package.
-
 ## Running
 
 With Cargo:
@@ -39,11 +31,17 @@ Example with a preset:
 cargo run --release -- -p '[0,0,0,3,3,0,0,-3,-3,0,0,0,0,0,0]'
 ```
 
+You can also pass the preset JSON without `-p`:
+
+```bash
+cargo run --release -- '[0,0,0,3,3,0,0,-3,-3,0,0,0,0,0,0]'
+```
+
 ## Flags
 
-The app currently supports one preset-loading flag:
-
 - `-p <JSON>` / `--preset <JSON>`: use a JSON array of initial band gains
+- `<JSON>`: optional positional form of the same preset input
+- `-h` / `--help`: show command help
 
 The value must be a JSON array of 15 gain values, one per band, in this order:
 
@@ -57,6 +55,12 @@ Example:
 
 ```bash
 cargo run --release -- --preset '[0,0,0,3,3,0,0,-3,-3,0,0,0,0,0,0]'
+```
+
+To see the generated CLI help:
+
+```bash
+cargo run --release -- --help
 ```
 
 ## Controls
