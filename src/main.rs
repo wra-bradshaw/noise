@@ -4,9 +4,9 @@ mod filter;
 mod noise;
 mod slider;
 mod ui;
-use std::env;
 
 use app::App;
+use clap::Parser;
 use constants::{MAXIMUM_DB, MINIMUM_DB};
 use cpal::traits::HostTrait;
 use crossterm::{
@@ -21,6 +21,27 @@ use ratatui::{
 };
 
 use crate::constants::FREQUENCIES;
+
+#[derive(Parser, Debug)]
+#[command(
+    author,
+    version,
+    about = "Shape generated white noise with a 15-band EQ"
+)]
+struct Args {
+    /// Load initial band gains from a JSON array.
+    #[arg(value_name = "JSON", conflicts_with = "preset_flag")]
+    preset: Option<String>,
+
+    /// Load initial band gains from a JSON array.
+    #[arg(
+        short = 'p',
+        long = "preset",
+        value_name = "JSON",
+        conflicts_with = "preset"
+    )]
+    preset_flag: Option<String>,
+}
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> anyhow::Result<()> {
     loop {
@@ -76,20 +97,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> anyhow::Res
 
 fn main() -> anyhow::Result<()> {
     let _l = simple_logging::log_to_file("test.log", log::LevelFilter::Debug);
+    let args = Args::parse();
+    let preset = args.preset_flag.or(args.preset);
+    let f: [f32; FREQUENCIES.len()] = match preset {
+        Some(preset) => serde_json::from_str::<[f32; FREQUENCIES.len()]>(&preset)?,
+        None => [0.0; FREQUENCIES.len()],
+    };
+
     let device = cpal::default_host()
         .default_output_device()
         .expect("No default output device detected");
     let noise = NoiseMaker::new(&device)?;
-
-    // pre run
-    let args: Vec<_> = env::args().skip(1).collect();
-    let f: [f32; FREQUENCIES.len()] = match args.as_slice() {
-        [] => [0.0; FREQUENCIES.len()],
-        [flag, preset] if flag == "-p" || flag == "--preset" => {
-            serde_json::from_str::<[f32; FREQUENCIES.len()]>(preset)?
-        }
-        _ => anyhow::bail!("usage: noise [-p|--preset <JSON>]"),
-    };
 
     enable_raw_mode()?;
     let mut stderr = std::io::stderr();
